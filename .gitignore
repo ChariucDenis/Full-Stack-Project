@@ -1,0 +1,19 @@
+# React
+frontend/node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Spring Boot (Maven)
+backend/target/
+
+# IDE / OS / misc
+.idea/
+.vscode/
+*.iml
+*.class
+*.log
+.DS_Store
+*.swp
