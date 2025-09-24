@@ -1,0 +1,891 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+  .card {
+    opacity: 0.9;
+  }
+  
+
+   .navbar{
+    padding: 0;
+   }
+   .navbar .navbar-nav .nav-link{
+    padding: 1em;
+   }
+   .navbar .navbar-nav .nav-item{
+    position: relative;
+   }
+  
+   .navbar .navbar-nav .nav-item::after{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    background-color:rgb(0, 51, 102);
+    width: 0;
+    margin: 0 auto;
+    height: 4px;
+    transition: all .5s;
+   }
+   .navbar .navbar-nav .nav-item:hover::after{
+    width: 100%;
+   }
+   .navbar-dark .navbar-nav .nav-link {
+    color: rgb(0, 51, 102);
+  }
+  
+  .navbar-dark .navbar-brand {
+    color: rgb(0, 51, 102);
+  }
+  
+   @media screen and (min-width: 992px){
+    .navbar{
+    padding: 0;
+   }
+   .navbar .navbar-nav .nav-link{
+    padding: 1em 0;
+   }
+   .navbar .navbar-nav .nav-item{
+    margin: 0 1em;
+   }
+   }
+  
+    
+   .btn-hotel{
+    background-color: rgb(0, 51, 102);
+    color: #fff;
+    }
+    .btn-hotel:hover{
+    background-color: rgb(0, 51, 102);
+    color: #fff;
+    transition: 0.7s;
+    outline-color: transparent;
+    outline-style:solid;
+  
+    }
+  
+    .car-color{
+     color: rgb(0, 51, 102); /* Nuanță de albastru închis */
+    
+    }
+    .room-price{
+      color:darkgoldenrod;
+      font-family: 'Courier New', Courier, monospace;
+      font-size:medium;
+    }
+    .vertical-rule{
+      border-left: '0.5px solid black';
+      height: '100vh'
+    }
+  
+  
+  
+  .parallax {
+    background-image: url("./assets/images/parrall.jpg");
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 50vh;
+  }
+  
+  .header {
+    position: relative;
+    height: 150px;
+    background-size: cover;
+    background-image: url("./assets/images/services4.jpg");
+    background-position: center center;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 4rem;
+    align-content: center;
+  }
+  
+  .parallax {
+    margin-top: 50px;
+    color: white;
+    text-shadow: 2px 2px black;
+  }
+  
+  .animated {
+    animation-duration: 1s;
+  }
+  
+  .animated-texts h1 {
+    animation: fadeInDown 1s ease-in-out;
+  }
+  
+  .animated-texts p, h1, h2 {
+    animation: fadeInUp 1s ease-in-out;
+  }
+  
+  @keyframes bounceIn {
+    from, 20%, 40%, 60%, 80%, to {
+      animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+      transform: translate3d(0,0,0);
+    }
+  
+    40%, 60% {
+      animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+      transform: translate3d(0, -30px, 0);
+    }
+  
+    70% {
+      animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+      transform: translate3d(0, -15px, 0);
+    }
+  
+    90% {
+      transform: translate3d(0,-4px,0);
+    }
+  }
+  
+  .bounceIn {
+    animation-name: bounceIn;
+  }
+  
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -50%, 0);
+    }
+  
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 50%, 0);
+    }
+  
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .overlay-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+       transform: translate(-50%, -50%);
+      color: #fff;
+      justify-content: flex-start;
+    }
+  
+
+  .header-banner {
+    background-image:  url("./assets/images/services-1.jpg");
+     background-size: cover;
+    background-position: center;
+     position: relative;
+    height: 80vh;
+   }
+  
+  .header-banner {
+    position: relative;
+    height: 500px;
+  }
+  
+  @media only screen and (max-width: 768px) {
+    .header-banner h1 {
+      font-size: 20px;
+    }
+  }
+  
+  @media only screen and (max-width: 480px) {
+    .header-banner h1 {
+      font-size: 16px;
+    }
+  }
+  
+   .Footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #f5f5f5;
+    height: 60px;
+    text-align: center;
+    margin-top: auto;
+    width: 100%;
+    padding: 10px 0;
+  }
+  
+  
+  
+  
+  
+.login-container {
+  width: 300px;
+  margin: 100px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h2 {
+  margin-bottom: 20px;
+}
+
+.login-container div {
+  margin-bottom: 15px;
+}
+
+.login-container label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007BFF;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-container button:hover {
+  background-color: #0056b3;
+}
+.car-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Distribuie cardurile uniform */
+  gap: 20px; /* Micșorează spațiul dintre carduri */
+  padding: 20px 60px; /* Mărește spațiul pe margini (stânga și dreapta) */
+  justify-content: flex-start;
+}
+
+.car-card {
+  background-color: white;
+  border: 1px solid #ccc; /* Face chenarul mai subțire */
+  border-radius: 10px;
+  overflow: hidden;
+  width: 32%; /* Asigură că 3 carduri se potrivesc pe un rând */
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.car-card:hover {
+  transform: translateY(-10px);
+}
+
+.car-image {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 20px;
+  object-fit: cover;
+}
+
+.car-title {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.reserve-btn {
+  background-color: #007bff; /* O nuanță de albastru */
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+.reserve-btn:hover {
+  background-color: #0056b3; /* O nuanță de albastru mai închis pentru hover */
+}
+/* Stil pentru butonul Vezi Preț */
+.show-price-btn {
+  background-color: #6c757d; /* O nuanță de gri */
+    color: white;
+    font-size: 12px; /* Dimensiune mai mică */
+    padding: 6px 12px; /* Padding mai mic */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+    width: auto; /* Dimensiune automată pentru a se potrivi conținutului */
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.show-price-btn:hover {
+  background-color: #5a6268; /* O nuanță de gri mai închis pentru hover */
+}
+
+/* Stil pentru afișarea prețului */
+.car-price {
+  font-size: 18px;
+  color: #010101; /* Verde pentru preț */
+  margin-top: 10px;
+  font-weight: bold;
+}
+.car-info {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  font-size: 14px;
+}
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.slider-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.prev-button,
+.next-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  font-size: 2rem;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  user-select: none;
+  transition: background-color 0.3s;
+}
+
+.prev-button:hover,
+.next-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.prev-button {
+  left: 10px;
+}
+
+.next-button {
+  right: 10px;
+}
+
+.custom-home-container {
+  padding: 20px;
+}
+
+.custom-slider {
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.custom-slider-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-cars-grid {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.custom-car-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+  position: relative;
+}
+
+.custom-car-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.custom-reserve-btn {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
+.custom-price-btn {
+  background-color: #ffc107;
+  border: none;
+  margin: 10px 0;
+}
+
+.custom-car-details {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.custom-car-details span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.custom-view-all-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.custom-view-all-btn {
+  background-color: #ffc107;
+  color: #333;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 20px;
+}
+
+.custom-slider {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 60px;
+}
+
+.custom-slider-image {
+    width: 100%;
+    height: 700px; /* Setați o înălțime fixă pentru toate imaginile */
+    object-fit: cover;
+  
+
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-prev-button,
+.custom-next-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    user-select: none;
+    transition: background-color 0.3s;
+}
+
+.custom-prev-button:hover,
+.custom-next-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.custom-prev-button {
+    left: 10px;
+}
+
+.custom-next-button {
+    right: 10px;
+}
+.search-bar {
+  margin-bottom: 20px;
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-bar input {
+  width: 45%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+
+
+.car-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.car-image-large {
+  max-width: 100%;
+  height: 500px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.car-info {
+  text-align: left;
+  width: 100%;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.car-info h3 {
+  margin-bottom: 15px;
+  font-size: 24px;
+  color: #333;
+}
+
+.car-info p {
+  margin: 5px 0;
+  font-size: 18px;
+  color: #555;
+}
+
+.car-info p strong {
+  color: #000;
+}
+
+.map-container {
+  max-width: 1200px; /* Aceeași lățime ca și containerul principal */
+  margin: 20px auto; /* Centrează și adaugă spațiu între harta și restul conținutului */
+  padding: 20px;
+  background-color: #ffffff; /* Fundal alb pentru contrast */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.location-input {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.location-input input {
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.custom-button-rute {
+  background-color: #007bff; /* Albastru Bootstrap */
+  color: white; /* Text alb */
+  padding: 10px 20px; /* Spațiere interioară */
+  border-radius: 5px; /* Colțuri rotunjite */
+  border: none; /* Fără border */
+  cursor: pointer; /* Schimbă cursorul la pointer */
+  font-size: 16px; /* Mărimea textului */
+  transition: background-color 0.3s ease; /* Tranziție lină pentru hover */
+}
+
+.custom-button-rute:hover {
+  background-color: #0056b3; /* O nuanță mai închisă de albastru pentru hover */
+}
+.custom-form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.custom-form .form-group {
+    margin-bottom: 15px;
+}
+
+.custom-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.custom-form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.custom-form input:focus {
+    border-color: #6FA1EC;
+    outline: none;
+    box-shadow: 0 0 5px rgba(111, 161, 236, 0.5);
+}
+
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #6FA1EC;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #5a8bdb;
+}
+
+
+.sort-dropdown {
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.filters {
+  display: flex;
+  justify-content: center; /* Center the filter groups */
+  gap: 40px; /* Increase gap between the filter groups */
+  margin: 20px 0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction:row;
+  align-items: center; /* Center items within each filter group */
+}
+
+.filter-group h4 {
+  margin-bottom: 10px;
+  text-align: center; /* Ensure the heading is centered */
+}
+
+.filter-group label {
+  margin-bottom: 5px;
+  font-size: 14px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.filter-group input[type="checkbox"] {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+/* Stilizare pentru containerul care conține câmpurile de introducere */
+.location-inputs {
+  margin: 0 auto 15px auto; /* Asta mută containerul în centru */
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  max-width: 1000px;
+  gap: 10px;
+  margin-bottom: 15px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stilizare pentru fiecare set de câmpuri de introducere */
+.location-inputs div {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+/* Stilizare pentru câmpurile de introducere */
+.location-inputs input {
+  flex: 1;
+  width: 48%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+/* Stilizare pentru focus pe câmpuri */
+.location-inputs input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Stilizare pentru buton */
+.location-inputs button {
+  display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 0 auto;
+    background-color: #007bff; /* Albastru */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Stilizare pentru hover pe buton */
+.location-inputs button:hover {
+  background-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Stilizare pentru butonul de afișare/ascundere a hărții */
+.show-hide-map-btn {
+  margin-bottom: 15px;
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Stilizare pentru hover pe butonul de afișare/ascundere */
+.show-hide-map-btn:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Diminuarea dimensiunii hărții */
+#map {
+  height: 400px;
+  width: 100%; /* Încearcă să setezi la 100% pentru a ocupa toată lățimea containerului */
+  max-width: 900px; /* Setează o lățime maximă dacă este necesar */
+  margin: 0 auto 15px auto;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+
+
+
+.rezervari-body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+.titlu-rezervari {
+  text-align: center;
+  color: #333;
+  margin: 0; /* Elimină complet margin pentru a lipi titlul de marginea de sus */
+  padding: 10px 0; /* Asigură că nu există padding */
+}
+
+
+
+
+.rezervariApp {
+  width: 100%;
+  margin: 10px 0 0 0; /* Micșorează margin-top pentru a aduce tabelul mai sus */
+  padding: 20px 40px; /* Redu padding-ul pentru a micșora spațiul dintre titlu și tabel */
+  background: #fff;
+ 
+}
+
+.rezervariTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px; /* Redu spațiul dintre titlu și tabel */
+}
+
+.rezervariTable th,
+.rezervariTable td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.rezervariTable th {
+  background-color: #007BFF;
+  color: white;
+}
+
+.rezervariTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+.car-grid-title {
+  text-align: center; /* Centrează textul */
+  font-size: 2em; /* Mărește dimensiunea fontului */
+  font-weight: bold; /* Îngroașă textul */
+  margin-bottom: 20px; /* Spațiu între titlu și conținut */
+}
+
+.environment-info {
+  color: #2E8B57; /* O nuanță de verde ușor de citit */
+  font-size: 1.2em; /* Mărime confortabilă pentru citit */
+  margin-bottom: 15px; /* Spațiu sub text */
+  text-align: center; /* Centrează textul */
+}
