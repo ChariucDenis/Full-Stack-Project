@@ -28,12 +28,13 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/v1/auth/**").permitAll()  // Permite accesul la autentificare și înregistrare
                         .requestMatchers(HttpMethod.GET, "/api/v1/car").permitAll()      // Acces liber pentru GET pe /api/v1/car
-                        .requestMatchers(HttpMethod.POST, "/api/v1/car").permitAll()   // Permite accesul la POST pentru ADMIN și USER
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/car/**").permitAll()   // Permite accesul la PUT pentru ADMIN și USER
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/car/**").permitAll()   // Permite accesul la DELETE pentru ADMIN și USER
+                        .requestMatchers(HttpMethod.POST, "/api/v1/car/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/car/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/car/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/car/*/image").permitAll() // Acces liber pentru imagini
                         .requestMatchers(HttpMethod.GET, "/api/v1/car/*").permitAll()
                         .requestMatchers( "/api/v1/rezervari").permitAll() // Acces liber pentru detaliile unei mașini
+                        .requestMatchers("/api/v1/reservations/unavailable").permitAll()
                         .anyRequest().authenticated()  // Orice altă cerere necesită autentificare
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
