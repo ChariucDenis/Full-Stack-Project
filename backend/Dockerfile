@@ -1,22 +1,24 @@
-# Imagine de bază pentru compilare
-FROM maven:3.9.4-eclipse-temurin-17 AS build
+# ---------- Build stage ----------
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copiază tot codul aplicației în container
-COPY . .
+# Folosim cache pentru dependențe
+COPY pom.xml .
+RUN mvn -q -DskipTests dependency:go-offline
 
-# Rulează build-ul Maven (fără teste)
-RUN mvn clean package -DskipTests
+# Apoi copiem sursele
+COPY src ./src
+RUN mvn -q -DskipTests clean package
 
-# Imagine de bază pentru runtime
-FROM eclipse-temurin:17-jdk-alpine
+# ---------- Runtime stage ----------
+# (poți folosi eclipse-temurin:17-jdk; dacă vrei alpine, lasă :17-jdk-alpine)
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
-# Copiază .jar-ul compilat din containerul anterior
+# Copiem JAR-ul construit
 COPY --from=build /app/target/*.jar app.jar
 
-# Expune portul (dacă aplicația rulează pe 8080)
+# IMPORTANT: Render setează un port în $PORT – îl respectăm aici
+ENV PORT=8080
 EXPOSE 8080
-
-# Comandă de rulare
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh","-c","java -Dserver.port=${PORT} -jar app.jar"]
