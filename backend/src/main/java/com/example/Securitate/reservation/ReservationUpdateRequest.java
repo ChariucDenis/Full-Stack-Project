@@ -8,14 +8,14 @@ public class ReservationUpdateRequest {
     @NotNull
     private Long id;
 
-    // opționale: dacă nu le trimiți, rămân la fel
+
     @Future
     private LocalDateTime startAt;
 
     @Future
     private LocalDateTime endAt;
 
-    private ReservationStatus status; // ex: PENDING, CONFIRMED, CANCELED
+    private ReservationStatus status;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

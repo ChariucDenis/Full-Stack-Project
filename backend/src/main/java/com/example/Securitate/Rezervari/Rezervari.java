@@ -22,7 +22,7 @@ public class Rezervari {
     @Column(nullable = false)
     private String address;
 
-    // Constructors, Getters, and Setters
+
     public Rezervari() {}
 
     public Rezervari(Long carId, String firstName, String lastName, String email, String phone, String address) {

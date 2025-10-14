@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class ReservationResponse {
     private Long id;
     private Long carId;
-    private String carLabel; // ex. "Dacia Logan 2020"
+    private String carLabel;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
     private ReservationStatus status;
@@ -16,7 +16,7 @@ public class ReservationResponse {
     }
 
 
-    // getters
+
     public Long getId() { return id; }
     public Long getCarId() { return carId; }
     public String getCarLabel() { return carLabel; }

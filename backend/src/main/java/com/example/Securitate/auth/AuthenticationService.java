@@ -19,7 +19,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        Role role = Role.USER; // Default role is USER
+        Role role = Role.USER;
 
         if (request.getIsAdmin() != null && request.getIsAdmin()) {
             role = Role.ADMIN;

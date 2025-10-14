@@ -10,6 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -22,22 +27,57 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cors = new CorsConfiguration();
+
+
+        cors.setAllowedOrigins(List.of(
+                "https://bluerentcar.netlify.app",
+                "http://localhost:3000"
+        ));
+        cors.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        cors.setAllowedHeaders(List.of("Authorization","Content-Type","X-Requested-With","Accept","Origin"));
+        cors.setExposedHeaders(List.of("Location"));
+        cors.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cors);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/v1/auth/**").permitAll()  // Permite accesul la autentificare și înregistrare
-                        .requestMatchers(HttpMethod.GET, "/api/v1/car").permitAll()      // Acces liber pentru GET pe /api/v1/car
+
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/car").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/car/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/car/*/image").permitAll()
+
+
+                        .requestMatchers("/api/v1/reservations/unavailable").permitAll()
+
+                        .requestMatchers("/api/v1/rezervari").permitAll()
+
+
                         .requestMatchers(HttpMethod.POST, "/api/v1/car/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/car/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/car/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/car/*/image").permitAll() // Acces liber pentru imagini
-                        .requestMatchers(HttpMethod.GET, "/api/v1/car/*").permitAll()
-                        .requestMatchers( "/api/v1/rezervari").permitAll() // Acces liber pentru detaliile unei mașini
-                        .requestMatchers("/api/v1/reservations/unavailable").permitAll()
-                        .anyRequest().authenticated()  // Orice altă cerere necesită autentificare
+
+
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

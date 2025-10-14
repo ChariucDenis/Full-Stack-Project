@@ -16,13 +16,9 @@ public class ReservationQueryService {
         this.reservationRepository = reservationRepository;
     }
 
-    /**
-     * Intervalele indisponibile pentru carId între zilele [from, to] (inclusiv).
-     * Returnează perechi start/end (LocalDateTime) pe care le mapezi în UI.
-     */
+
     @Transactional(readOnly = true)
     public List<UnavailableRange> unavailable(Long carId, LocalDate from, LocalDate to) {
-        // includem "to" până la începutul zilei următoare (=> [from, to+1d) )
         LocalDateTime fromStart = from.atStartOfDay();
         LocalDateTime toEnd     = to.plusDays(1).atStartOfDay();
 

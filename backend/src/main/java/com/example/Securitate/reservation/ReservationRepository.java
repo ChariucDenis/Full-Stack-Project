@@ -9,12 +9,7 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    /**
-     * Verifică dacă există o rezervare care se suprapune pentru aceeași mașină
-     * în intervalul [startAt, endAt) și care are status activ (HOLD/CONFIRMED).
-     *
-     * Suprapunerea e definită ca: (existing.start < new.end) AND (existing.end > new.start)
-     */
+
     @Query("""
         SELECT COUNT(r) > 0
         FROM Reservation r
@@ -29,15 +24,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                           @Param("startAt") LocalDateTime startAt,
                           @Param("endAt") LocalDateTime endAt);
 
-    /**
-     * Rezervările unui user, ordonate descrescător după startAt (pentru istoric).
-     */
+
     List<Reservation> findByUserIdOrderByStartAtDesc(Long userId);
 
-    /**
-     * Intervalele indisponibile pentru o mașină într-o fereastră [fromStart, toEnd).
-     * Folosit pentru a „gri” zilele ocupate în date-picker pe frontend.
-     */
+
     @Query("""
         SELECT r
         FROM Reservation r

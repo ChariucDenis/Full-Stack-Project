@@ -30,7 +30,7 @@ public class ReservationService {
         this.userRepository = userRepository;
     }
 
-    /** Userul curent din SecurityContext (username = email). */
+
     private User currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -38,7 +38,7 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalStateException("User not found: " + email));
     }
 
-    /** Creează o rezervare după validări + verificarea suprapunerii. */
+
     @Transactional
     public ReservationResponse create(ReservationRequest req) {
         if (req.getStartAt() == null || req.getEndAt() == null) {
@@ -82,7 +82,7 @@ public class ReservationService {
         );
     }
 
-    /** Istoricul rezervărilor userului curent. */
+
     @Transactional(readOnly = true)
     public List<ReservationResponse> myReservations() {
         Long userId = Long.valueOf(currentUser().getId());
@@ -99,7 +99,7 @@ public class ReservationService {
                 .toList();
     }
 
-    /** Anulează o rezervare (de regulă owner sau admin). */
+
     @Transactional
     public void cancel(Long id) {
         Reservation r = reservationRepository.findById(id)
@@ -107,7 +107,7 @@ public class ReservationService {
         r.setStatus(ReservationStatus.CANCELLED); // asigură-te că enumul tău are CANCELLED
     }
 
-    /** (ADMIN) Toate rezervările, ordonate desc după start. */
+
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public List<ReservationResponse> all() {
@@ -124,7 +124,7 @@ public class ReservationService {
                 .toList();
     }
 
-    /** (ADMIN) Update parțial (dată/ora/status) cu verificare de suprapuneri. */
+
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ReservationResponse adminUpdate(ReservationUpdateRequest req) {
@@ -158,7 +158,7 @@ public class ReservationService {
         );
     }
 
-    /** (ADMIN) Ștergere rezervare. */
+
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void adminDelete(Long id) {

@@ -73,7 +73,7 @@ public class Car {
         this.imageType = imageType;
     }
 
-    // Getters and setters for new fields
+
 
     public float getCO2_emissions() {
         return emissions;
@@ -91,7 +91,7 @@ public class Car {
         this.fuel_consumption = fuel_consumption;
     }
 
-    // Existing getters and setters ...
+
 
     public Long getId() {
         return id;
