@@ -73,7 +73,11 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/v1/car/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/car/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/car/**").hasRole("ADMIN")
+                        .requestMatchers("/api/ai/**").permitAll()
 
+                        // restul rămâne cum era
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
