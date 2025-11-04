@@ -28,7 +28,7 @@ public class BookingAssistantAgent {
         roagă-ți „tool-urile” interne. RETURNAREA de date reale se face din DB, nu inventa răspunsuri.
         """;
 
-    // Formate de dată acceptate în text
+
     private static final DateTimeFormatter[] DATE_FORMATS = new DateTimeFormatter[] {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"),
@@ -37,10 +37,10 @@ public class BookingAssistantAgent {
             DateTimeFormatter.ofPattern("yyyy-MM-dd")
     };
 
-    /* ===================== PUNCT UNIC DE INTRARE ===================== */
+
 
     public BookingAssistantController.ChatResponseDTO chat(String sessionId, String userMessage) {
-        // 0) Întrebări generale: oferă acțiune confirm_navigate către /cars
+
         if (isGeneralListQuestion(userMessage)) {
             return new BookingAssistantController.ChatResponseDTO(
                     "Avem o gamă variată de mașini (economice, SUV, lux). Vrei să te duc la pagina cu toate mașinile?",
@@ -55,13 +55,13 @@ public class BookingAssistantAgent {
             );
         }
 
-        // 1) Căutări după id=... + (opțional) perioadă
+
         if (userMessage != null && userMessage.toLowerCase(Locale.ROOT).contains("id=")) {
             String reply = handleById(userMessage);
             return new BookingAssistantController.ChatResponseDTO(reply, List.of());
         }
 
-        // 2) Criterii (brand, buget, cutie, combustibil) + opțional perioadă
+
         if (mightBeCriteriaSearch(userMessage)) {
             String byCriteria = handleByCriteria(userMessage);
             if (byCriteria != null) {
@@ -69,7 +69,7 @@ public class BookingAssistantAgent {
             }
         }
 
-        // 2.5) Calculează prețul pentru {model} din {data} până pe {data}
+
         String lower = userMessage == null ? "" : userMessage.toLowerCase(Locale.ROOT);
         boolean isQuoteIntent =
                 lower.contains("calculeaza pretul") || lower.contains("calculează prețul") ||
@@ -108,7 +108,7 @@ public class BookingAssistantAgent {
             );
         }
 
-        // 3) Fallback: LLM (mini)
+
         ChatClient chat = chatClientBuilder.build();
         String llmAnswer = chat
                 .prompt()
@@ -120,7 +120,7 @@ public class BookingAssistantAgent {
         return new BookingAssistantController.ChatResponseDTO(llmAnswer, List.of());
     }
 
-    /* ====================== BY ID ====================== */
+
 
     private String handleById(String text) {
         Long id = extractId(text);
@@ -134,7 +134,7 @@ public class BookingAssistantAgent {
         }
         Car car = carOpt.get();
 
-        // verificare disponibilitate dacă avem interval
+
         var dates = extractDates(text);
         if (dates.size() >= 2) {
             var start = normalize(dates.get(0), true);
@@ -147,7 +147,6 @@ public class BookingAssistantAgent {
         return formatCarLine(car);
     }
 
-    /* ====================== BY CRITERIA ====================== */
 
     private String handleByCriteria(String text) {
         String brand        = extractBrand(text);
@@ -162,7 +161,7 @@ public class BookingAssistantAgent {
 
         List<Car> all = carRepository.findAll();
 
-        // filtrează pe brand dacă a fost menționat
+
         if (brand != null) {
             List<Car> onlyBrand = new ArrayList<>();
             for (Car c : all) {
@@ -176,13 +175,13 @@ public class BookingAssistantAgent {
             all = onlyBrand;
         }
 
-        // utilitar pentru disponibilitate
+
         java.util.function.Predicate<Car> isAvailableInWindow = c -> {
             if (start == null || end == null) return true;
             return !reservationRepository.existsOverlap(c.getId(), start, end);
         };
 
-        // dacă utilizatorul vrea un preț exact (ex: „la 100 ron” / „100 ron/zi”)
+
         if (exactPrice != null) {
             List<Car> exactMatches = new ArrayList<>();
             for (Car c : all) {
@@ -215,7 +214,7 @@ public class BookingAssistantAgent {
                 return sb.toString();
             }
 
-            // altfel: oferă cele mai apropiate sub/peste exactPrice (disponibile și pe criterii)
+
             Car bestBelow = null;
             Car bestAbove = null;
             for (Car c : all) {
@@ -248,7 +247,7 @@ public class BookingAssistantAgent {
             return sb.toString();
         }
 
-        // filtrare generală
+
         List<Car> filtered = new ArrayList<>();
         for (Car c : all) {
             if (transmission != null && !containsIgnoreCase(c.getTransmission(), transmission)) continue;
@@ -287,9 +286,7 @@ public class BookingAssistantAgent {
         return sb.toString();
     }
 
-    /* ====================== HELPERI ====================== */
 
-    // Găsește o mașină după mențiuni în text (brand/model), scorând simplu
     private Car findCarByMention(String message) {
         if (message == null) return null;
         String t = message.toLowerCase(Locale.ROOT);
@@ -304,7 +301,7 @@ public class BookingAssistantAgent {
 
             int score = 0;
             if (!brand.isBlank() && t.contains(brand)) score += 1;
-            if (!model.isBlank() && t.contains(model)) score += 2; // modelul cântărește mai mult
+            if (!model.isBlank() && t.contains(model)) score += 2;
             if (score > bestScore) { bestScore = score; best = c; }
         }
 
@@ -457,7 +454,7 @@ public class BookingAssistantAgent {
         return null;
     }
 
-    // BUGFIX: ignoră anii din date; ia doar numere cu context de preț
+
     private static Integer extractBudget(String text) {
         if (text == null) return null;
         String t = text.toLowerCase(Locale.ROOT);
@@ -475,7 +472,7 @@ public class BookingAssistantAgent {
         return null;
     }
 
-    // BUGFIX: ignoră anii din date; acceptă DOAR numere cu context clar de preț
+
     private static Integer extractExactPrice(String text) {
         if (text == null) return null;
         String t = text.toLowerCase(Locale.ROOT);
