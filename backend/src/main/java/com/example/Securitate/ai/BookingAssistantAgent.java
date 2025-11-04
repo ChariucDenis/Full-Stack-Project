@@ -18,18 +18,17 @@ import java.util.regex.Pattern;
 public class BookingAssistantAgent {
 
     private final ChatClient.Builder chatClientBuilder;
-
     private final CarRepository carRepository;
     private final ReservationRepository reservationRepository;
 
     private static final String SYSTEM_PROMPT = """
         Ești BookingAssistant pentru un serviciu de închirieri auto.
         Dacă utilizatorul cere informații generale, răspunde prietenos, pe scurt.
-        Dacă mesajul este despre DB (ex: "mașina cu id=3", "găsește o automată sub 200 RON/zi între X și Y"),
+        Dacă mesajul este despre DB (ex: "găsește o automată sub 200 RON/zi între X și Y"),
         roagă-ți „tool-urile” interne. RETURNAREA de date reale se face din DB, nu inventa răspunsuri.
         """;
 
-
+    // Formate de dată acceptate în text
     private static final DateTimeFormatter[] DATE_FORMATS = new DateTimeFormatter[] {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"),
@@ -38,10 +37,10 @@ public class BookingAssistantAgent {
             DateTimeFormatter.ofPattern("yyyy-MM-dd")
     };
 
+    /* ===================== PUNCT UNIC DE INTRARE ===================== */
 
     public BookingAssistantController.ChatResponseDTO chat(String sessionId, String userMessage) {
-
-
+        // 0) Întrebări generale: oferă acțiune confirm_navigate către /cars
         if (isGeneralListQuestion(userMessage)) {
             return new BookingAssistantController.ChatResponseDTO(
                     "Avem o gamă variată de mașini (economice, SUV, lux). Vrei să te duc la pagina cu toate mașinile?",
@@ -56,13 +55,13 @@ public class BookingAssistantAgent {
             );
         }
 
-
-        if (userMessage != null && userMessage.toLowerCase().contains("id=")) {
+        // 1) Căutări după id=... + (opțional) perioadă
+        if (userMessage != null && userMessage.toLowerCase(Locale.ROOT).contains("id=")) {
             String reply = handleById(userMessage);
             return new BookingAssistantController.ChatResponseDTO(reply, List.of());
         }
 
-
+        // 2) Criterii (brand, buget, cutie, combustibil) + opțional perioadă
         if (mightBeCriteriaSearch(userMessage)) {
             String byCriteria = handleByCriteria(userMessage);
             if (byCriteria != null) {
@@ -70,7 +69,46 @@ public class BookingAssistantAgent {
             }
         }
 
+        // 2.5) Calculează prețul pentru {model} din {data} până pe {data}
+        String lower = userMessage == null ? "" : userMessage.toLowerCase(Locale.ROOT);
+        boolean isQuoteIntent =
+                lower.contains("calculeaza pretul") || lower.contains("calculează prețul") ||
+                        (lower.contains("calculeaza") && lower.contains("pret"));
 
+        if (isQuoteIntent) {
+            Car car = findCarByMention(userMessage);
+            DateRange range = parseDateRange(userMessage);
+
+            if (car == null) {
+                return new BookingAssistantController.ChatResponseDTO(
+                        "Spune-mi, te rog, modelul exact (ex: „Audi RS6” sau „BMW 520”) ca să pot calcula prețul.",
+                        List.of()
+                );
+            }
+            if (range == null) {
+                return new BookingAssistantController.ChatResponseDTO(
+                        "Dă-mi și intervalul (ex: „din 2025-11-01 până pe 2025-11-05”) ca să calculez prețul.",
+                        List.of()
+                );
+            }
+
+            boolean overlap = reservationRepository.existsOverlap(car.getId(), range.start, range.end);
+            String availability = overlap ? "INDISPONIBILĂ" : "DISPONIBILĂ";
+
+            String quote = formatQuote(car, range.start, range.end)
+                    + String.format(Locale.ROOT, "\nDisponibilitate: %s", availability);
+
+            return new BookingAssistantController.ChatResponseDTO(
+                    quote,
+                    List.of(new BookingAssistantController.ActionDTO(
+                            "offer_navigate",
+                            "/view-car-image/" + car.getId(),
+                            "Vezi detalii"
+                    ))
+            );
+        }
+
+        // 3) Fallback: LLM (mini)
         ChatClient chat = chatClientBuilder.build();
         String llmAnswer = chat
                 .prompt()
@@ -82,7 +120,7 @@ public class BookingAssistantAgent {
         return new BookingAssistantController.ChatResponseDTO(llmAnswer, List.of());
     }
 
-
+    /* ====================== BY ID ====================== */
 
     private String handleById(String text) {
         Long id = extractId(text);
@@ -96,7 +134,7 @@ public class BookingAssistantAgent {
         }
         Car car = carOpt.get();
 
-
+        // verificare disponibilitate dacă avem interval
         var dates = extractDates(text);
         if (dates.size() >= 2) {
             var start = normalize(dates.get(0), true);
@@ -106,27 +144,25 @@ public class BookingAssistantAgent {
             return formatCarLine(car) + " | Disponibilitate [" + start + " → " + end + "]: " + avail;
         }
 
-
         return formatCarLine(car);
     }
 
-
+    /* ====================== BY CRITERIA ====================== */
 
     private String handleByCriteria(String text) {
-
-        String brand = extractBrand(text);
+        String brand        = extractBrand(text);
         String transmission = extractTransmission(text);
-        String fuel = extractFuel(text);
-        Integer maxPrice = extractBudget(text);
-        Integer exactPrice = extractExactPrice(text);
-        var dates = extractDates(text);
+        String fuel         = extractFuel(text);
+        Integer maxPrice    = extractBudget(text);
+        Integer exactPrice  = extractExactPrice(text);
+        var dates           = extractDates(text);
 
         LocalDateTime start = dates.size() >= 1 ? normalize(dates.get(0), true) : null;
         LocalDateTime end   = dates.size() >= 2 ? normalize(dates.get(1), false) : null;
 
         List<Car> all = carRepository.findAll();
 
-
+        // filtrează pe brand dacă a fost menționat
         if (brand != null) {
             List<Car> onlyBrand = new ArrayList<>();
             for (Car c : all) {
@@ -140,13 +176,13 @@ public class BookingAssistantAgent {
             all = onlyBrand;
         }
 
-
+        // utilitar pentru disponibilitate
         java.util.function.Predicate<Car> isAvailableInWindow = c -> {
             if (start == null || end == null) return true;
             return !reservationRepository.existsOverlap(c.getId(), start, end);
         };
 
-
+        // dacă utilizatorul vrea un preț exact (ex: „la 100 ron” / „100 ron/zi”)
         if (exactPrice != null) {
             List<Car> exactMatches = new ArrayList<>();
             for (Car c : all) {
@@ -179,7 +215,7 @@ public class BookingAssistantAgent {
                 return sb.toString();
             }
 
-
+            // altfel: oferă cele mai apropiate sub/peste exactPrice (disponibile și pe criterii)
             Car bestBelow = null;
             Car bestAbove = null;
             for (Car c : all) {
@@ -200,7 +236,7 @@ public class BookingAssistantAgent {
                 return "Nu am găsit mașini apropiate de " + exactPrice + " RON/zi pentru criteriile date.";
             }
 
-            StringBuilder sb = new StringBuilder("Nu avem mașini exact la ")
+            StringBuilder sb = new StringBuilder("Nu avem exact la ")
                     .append(exactPrice).append(" RON/zi, dar iată alternativele cele mai apropiate");
             if (start != null && end != null) {
                 sb.append(" DISPONIBILE în intervalul [").append(start).append(" → ").append(end).append("]");
@@ -212,8 +248,7 @@ public class BookingAssistantAgent {
             return sb.toString();
         }
 
-
-
+        // filtrare generală
         List<Car> filtered = new ArrayList<>();
         for (Car c : all) {
             if (transmission != null && !containsIgnoreCase(c.getTransmission(), transmission)) continue;
@@ -252,33 +287,62 @@ public class BookingAssistantAgent {
         return sb.toString();
     }
 
+    /* ====================== HELPERI ====================== */
 
-    private static Integer extractExactPrice(String text) {
-        if (text == null) return null;
-        String t = text.toLowerCase(Locale.ROOT);
+    // Găsește o mașină după mențiuni în text (brand/model), scorând simplu
+    private Car findCarByMention(String message) {
+        if (message == null) return null;
+        String t = message.toLowerCase(Locale.ROOT);
 
+        List<Car> all = carRepository.findAll();
+        Car best = null;
+        int bestScore = -1;
 
-        Pattern[] patterns = new Pattern[] {
-                Pattern.compile("\\bla\\s*(\\d+)\\s*(?:ron|lei|leu|lei/zi|ron/zi)?\\b"),
-                Pattern.compile("\\bexact\\s*(\\d+)\\b"),
-                Pattern.compile("\\bfix\\s*(\\d+)\\b"),
-                Pattern.compile("\\b(\\d+)\\s*(?:ron|lei|leu)\\s*(?:/|pe)?\\s*zi\\b"),
-                Pattern.compile("\\b(\\d+)\\b")
-        };
+        for (Car c : all) {
+            String brand = safe(c.getBrand()).toLowerCase(Locale.ROOT);
+            String model = safe(c.getModel()).toLowerCase(Locale.ROOT);
 
-        for (Pattern p : patterns) {
-            Matcher m = p.matcher(t);
-            if (m.find()) {
-                try {
-                    return Integer.parseInt(m.group(1));
-                } catch (Exception ignored) {}
-            }
+            int score = 0;
+            if (!brand.isBlank() && t.contains(brand)) score += 1;
+            if (!model.isBlank() && t.contains(model)) score += 2; // modelul cântărește mai mult
+            if (score > bestScore) { bestScore = score; best = c; }
         }
-        return null;
+
+        return bestScore >= 1 ? best : null;
     }
 
+    private static class DateRange {
+        final LocalDateTime start;
+        final LocalDateTime end;
+        DateRange(LocalDateTime s, LocalDateTime e){ this.start=s; this.end=e; }
+    }
+    private DateRange parseDateRange(String text) {
+        var dates = extractDates(text);
+        if (dates.size() < 2) return null;
+        var start = normalize(dates.get(0), true);
+        var end   = normalize(dates.get(1), false);
+        return new DateRange(start, end);
+    }
 
+    private String formatQuote(Car car, LocalDateTime start, LocalDateTime end) {
+        long days = Math.max(1, java.time.Duration.between(start, end).toDays());
+        int price = car.getPrice_per_day() == null ? 0 : car.getPrice_per_day();
+        double subtotal = days * price;
+        double deposit  = Math.round(subtotal * 0.20 * 100.0) / 100.0;
+        double total    = Math.round((subtotal + deposit) * 100.0) / 100.0;
 
+        String base = String.format(Locale.ROOT,
+                "%s %s (%d) — %s, %s — %d RON/zi",
+                safe(car.getBrand()), safe(car.getModel()),
+                car.getYear() == null ? 0 : car.getYear(),
+                safe(car.getFuel_type()), safe(car.getTransmission()), price
+        );
+
+        return base + String.format(Locale.ROOT,
+                "\nInterval: [%s → %s] • Zile: %d\nSubtotal: %.2f RON\nDepozit (20%%): %.2f RON\nTotal: %.2f RON",
+                start, end, days, subtotal, deposit, total
+        );
+    }
 
     private boolean isGeneralListQuestion(String msg) {
         if (msg == null) return false;
@@ -303,7 +367,6 @@ public class BookingAssistantAgent {
         );
     }
 
-
     private static Car textMode(Car c) { return c; }
 
     private static String safe(Object o) {
@@ -322,7 +385,6 @@ public class BookingAssistantAgent {
         }
         return null;
     }
-
 
     private static List<String> extractDates(String text) {
         List<String> found = new ArrayList<>();
@@ -351,14 +413,14 @@ public class BookingAssistantAgent {
         throw new IllegalArgumentException("Dată invalidă: " + raw);
     }
 
-
     private static boolean mightBeCriteriaSearch(String text) {
         if (text == null) return false;
         String t = text.toLowerCase(Locale.ROOT);
 
-        boolean mentionsRonPrice = t.matches(".*\\b\\d+\\s*(?:ron|lei|leu)\\b.*")
-                || t.matches(".*\\b\\d+\\s*(?:ron|lei|leu)\\s*(?:/|pe)?\\s*zi\\b.*")
-                || t.matches(".*\\b\\d+\\b.*");
+        boolean mentionsRonPrice =
+                t.matches(".*\\b\\d+\\s*(?:ron|lei|leu)\\b.*") ||
+                        t.matches(".*\\b\\d+\\s*(?:ron|lei|leu)\\s*(?:/|pe)?\\s*zi\\b.*") ||
+                        t.matches(".*\\bla\\s*\\d+\\b.*"); // "la 100"
 
         return t.contains("automat") || t.contains("manual")
                 || t.contains("benz") || t.contains("diesel")
@@ -369,14 +431,14 @@ public class BookingAssistantAgent {
     }
 
     private static boolean containsAnyBrand(String t) {
-        String[] common = {"bmw","audi","mercedes","vw","volkswagen","skoda","toyota","honda","ford","dacia","opel","renault","hyundai","kia"};
+        String[] common = {"bmw","audi","mercedes","vw","volkswagen","skoda","toyota","honda","ford","dacia","opel","renault","hyundai","kia","volvo","ferrari","porsche"};
         for (String b : common) if (t.contains(b)) return true;
         return false;
     }
 
     private static String extractBrand(String text) {
         String t = text.toLowerCase(Locale.ROOT);
-        String[] common = {"bmw","audi","mercedes","vw","volkswagen","skoda","toyota","honda","ford","dacia","opel","renault","hyundai","kia"};
+        String[] common = {"bmw","audi","mercedes","vw","volkswagen","skoda","toyota","honda","ford","dacia","opel","renault","hyundai","kia","volvo","ferrari","porsche"};
         for (String b : common) if (t.contains(b)) return b.equals("vw")? "volkswagen" : b;
         return null;
     }
@@ -395,22 +457,42 @@ public class BookingAssistantAgent {
         return null;
     }
 
+    // BUGFIX: ignoră anii din date; ia doar numere cu context de preț
     private static Integer extractBudget(String text) {
         if (text == null) return null;
         String t = text.toLowerCase(Locale.ROOT);
+        String tNoDates = t.replaceAll("\\d{4}-\\d{2}-\\d{2}(?:[ t]\\d{2}:\\d{2}(?::\\d{2})?)?", " ");
 
-
-        Matcher m = Pattern.compile("(?:sub|maxim|p(?:a|ă)na la|p\\u0103n\\u0103 la|budget|buget)\\s*(\\d+)").matcher(t);
+        Matcher m = Pattern.compile("(?:sub|maxim|p(?:a|ă)na la|p\\u0103n\\u0103 la|budget|buget)\\s*(\\d{1,5})").matcher(tNoDates);
         if (m.find()) {
             try { return Integer.parseInt(m.group(1)); } catch (Exception ignored) {}
         }
 
-
-        m = Pattern.compile("(\\d+)\\s*(?:ron|lei|leu)\\b").matcher(t);
+        m = Pattern.compile("\\b(\\d{1,5})\\s*(?:ron|lei|leu)\\b").matcher(tNoDates);
         if (m.find()) {
             try { return Integer.parseInt(m.group(1)); } catch (Exception ignored) {}
         }
         return null;
     }
 
+    // BUGFIX: ignoră anii din date; acceptă DOAR numere cu context clar de preț
+    private static Integer extractExactPrice(String text) {
+        if (text == null) return null;
+        String t = text.toLowerCase(Locale.ROOT);
+        String tNoDates = t.replaceAll("\\d{4}-\\d{2}-\\d{2}(?:[ t]\\d{2}:\\d{2}(?::\\d{2})?)?", " ");
+
+        Pattern[] patterns = new Pattern[] {
+                Pattern.compile("\\bla\\s*(\\d{1,5})\\s*(?:ron|lei|leu)?\\b"),
+                Pattern.compile("\\b(\\d{1,5})\\s*(?:ron|lei|leu)\\s*(?:/|pe)?\\s*zi\\b"),
+                Pattern.compile("\\b(\\d{1,5})\\s*(?:ron|lei|leu)\\b")
+        };
+
+        for (Pattern p : patterns) {
+            Matcher m = p.matcher(tNoDates);
+            if (m.find()) {
+                try { return Integer.parseInt(m.group(1)); } catch (Exception ignored) {}
+            }
+        }
+        return null;
+    }
 }
