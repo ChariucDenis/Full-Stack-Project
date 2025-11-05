@@ -134,7 +134,7 @@ curl -X POST https://full-stack-project-tjhf.onrender.com/api/ai/chat \
 ---
   ## 🗄️ DB Schema (PostgreSQL)
 
-![DB Schema](./Database.png)
+![DB Schema](./readme-assets/Database.png)
 
 ---
 
