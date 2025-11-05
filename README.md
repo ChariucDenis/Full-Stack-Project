@@ -132,9 +132,15 @@ curl -X POST https://full-stack-project-tjhf.onrender.com/api/ai/chat \
   -d '{"sessionId":"web","message":"What cars do you have?"}'
   ```
 ---
+  ## 🗄️ DB Schema (PostgreSQL)
+
+![DB Schema](./Database.png)
+
+---
+
 ## 🖥️ Local Setup (Development)
 
-### 1) Backend (Spring Boot)
+###   Backend (Spring Boot)
 
 Create `.env` inside backend root:
 
@@ -147,11 +153,10 @@ PGUSER=postgres
 PGPASSWORD=admin
 JDBC_URL=jdbc:postgresql://localhost:5432/rentai
 OPENAI_API_KEY=sk-xxxx
+```
+ src/main/resources/application.properties
 
-"src/main/resources/application.properties"
-
-properties
-Copy code
+```
 server.port=${PORT:8080}
 
 spring.datasource.url=${JDBC_URL}
@@ -166,13 +171,21 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 
 spring.ai.openai.api-key=${OPENAI_API_KEY}
 spring.ai.openai.chat.options.model=gpt-4o-mini
+```
 Run backend:
-
-bash
-Copy code
+```
 ./mvnw spring-boot:run
 ```
-
+### Frontend (React)
+```
+npm install
+npm run dev
+# http://localhost:5173
+```
+API config → src/services/api.js
+```
+const API_BASE_URL = "http://localhost:8080/api/v1";
+```
 ---
 ## 🧯 Troubleshooting
 
